@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.exam.mapper.QuestionCategoryMapper">
+
+    <!-- 真题分类结果映射 -->
+    <resultMap id="QuestionCategoryResultMap" type="com.exam.entity.QuestionCategory">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="level" property="level"/>
+        <result column="sort_order" property="sortOrder"/>
+        <result column="description" property="description"/>
+        <result column="status" property="status"/>
+        <result column="created_time" property="createdTime"/>
+        <result column="updated_time" property="updatedTime"/>
+    </resultMap>
+
+    <!-- 查询所有分类 -->
+    <select id="selectAll" resultMap="QuestionCategoryResultMap">
+        SELECT * FROM question_categories 
+        ORDER BY parent_id, sort_order, id
+    </select>
+
+    <!-- 根据父级ID查询子分类 -->
+    <select id="selectByParentId" resultMap="QuestionCategoryResultMap">
+        SELECT * FROM question_categories 
+        WHERE parent_id = #{parentId}
+        ORDER BY sort_order, id
+    </select>
+
+    <!-- 根据ID查询分类详情 -->
+    <select id="selectById" resultMap="QuestionCategoryResultMap">
+        SELECT * FROM question_categories WHERE id = #{id}
+    </select>
+
+    <!-- 新增分类 -->
+    <insert id="insert" parameterType="com.exam.entity.QuestionCategory" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO question_categories (
+            name, parent_id, level, sort_order, description, status
+        ) VALUES (
+            #{name}, #{parentId}, #{level}, #{sortOrder}, #{description}, #{status}
+        )
+    </insert>
+
+    <!-- 更新分类信息 -->
+    <update id="update" parameterType="com.exam.entity.QuestionCategory">
+        UPDATE question_categories 
+        SET name = #{name},
+            parent_id = #{parentId},
+            level = #{level},
+            sort_order = #{sortOrder},
+            description = #{description},
+            status = #{status}
+        WHERE id = #{id}
+    </update>
+
+    <!-- 删除分类 -->
+    <delete id="deleteById">
+        DELETE FROM question_categories WHERE id = #{id}
+    </delete>
+
+    <!-- 查询所有启用状态的分类 -->
+    <select id="selectAllEnabled" resultMap="QuestionCategoryResultMap">
+        SELECT * FROM question_categories 
+        WHERE status = 1 
+        ORDER BY parent_id, sort_order, id
+    </select>
+
+    <!-- 检查分类名称是否已存在（同级别下） -->
+    <select id="checkNameExists" resultType="int">
+        SELECT COUNT(*) FROM question_categories 
+        WHERE name = #{name} AND parent_id = #{parentId}
+        <if test="excludeId != null">
+            AND id != #{excludeId}
+        </if>
+    </select>
+
+    <!-- 检查分类下是否有子分类 -->
+    <select id="countChildren" resultType="int">
+        SELECT COUNT(*) FROM question_categories WHERE parent_id = #{parentId}
+    </select>
+
+    <!-- 检查分类下是否有题目 -->
+    <select id="countQuestions" resultType="int">
+        SELECT COUNT(*) FROM company_questions WHERE category_id = #{categoryId}
+    </select>
+
+    <!-- 更新排序序号 -->
+    <update id="updateSortOrder">
+        UPDATE question_categories 
+        SET sort_order = #{sortOrder}
+        WHERE id = #{id}
+    </update>
+
+</mapper> 

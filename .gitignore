@@ -1,0 +1,53 @@
+# Maven
+*.jar
+*.war
+*.ear
+*.class
+.mvn/
+!/.mvn/wrapper/maven-wrapper.jar
+/target/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+logs/
+*.log
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Database
+*.sql
+*.sql.gz
+
+# OS generated files
+Thumbs.db
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+
+# Test reports
+/coverage/
+
+# Spring Boot
+spring-configuration-metadata.json
+
+# Build
+/build/
+/dist/
+
+# Misc
+*.tmp
+*.temp
+.cache/

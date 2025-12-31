@@ -1,0 +1,112 @@
+server:
+  port: 8080  # 服务器端口
+
+spring:
+  application:
+    name: smart-learning-platform  # 智能学习平台应用名称
+  
+  # Redis缓存配置
+  data:
+    redis:
+      host: 192.168.145.100  # Redis服务器地址
+      port: 6379       # Redis服务器端口
+      database: 0      # 使用的数据库索引
+      timeout: 10000   # 连接超时时间（毫秒）
+      lettuce:
+        pool:
+          max-active: 8   # 连接池最大连接数
+          max-wait: -1    # 连接池最大阻塞等待时间（使用负值表示没有限制）
+          max-idle: 8     # 连接池中的最大空闲连接
+          min-idle: 0     # 连接池中的最小空闲连接
+  
+  # 数据库配置
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver  # MySQL驱动
+    url: jdbc:mysql://localhost:3306/exam_system_online?useUnicode=true&characterEncoding=utf8&allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=Asia/Shanghai  # 数据库连接URL
+    username: root  # 数据库用户名
+    password: 1234  # 数据库密码
+    hikari:
+      connection-test-query: SELECT 1 # 自动检测连接
+      connection-timeout: 60000 #数据库连接超时时间,默认30秒
+      idle-timeout: 500000 #空闲连接存活最大时间，默认600000（10分钟）
+      max-lifetime: 540000 #此属性控制池中连接的最长生命周期，值0表示无限生命周期，默认1800000即30分钟
+      maximum-pool-size: 12 #连接池最大连接数，默认是10
+      minimum-idle: 10 #最小空闲连接数量
+      pool-name: SPHHikariPool # 连接池名称
+
+  
+  # Jackson配置
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss  # 日期格式
+    time-zone: GMT+8  # 时区设置
+    default-property-inclusion: NON_NULL  # 不序列化null值
+
+  servlet:
+    multipart:
+      max-file-size: 150MB   # 单个文件最大150MB
+      max-request-size: 150MB # 单次请求最大150MB
+
+# MyBatis Plus配置
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true  # 下划线转驼峰
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl  # SQL日志输出
+    auto-mapping-behavior: full
+  global-config:
+    db-config:
+      id-type: auto  # 主键策略
+      #logic-delete-field: isDeleted  # 逻辑删除字段
+      #logic-delete-value: 1  # 逻辑删除值
+      #logic-not-delete-value: 0  # 逻辑未删除值
+  mapper-locations: classpath*:/mapper/**/*.xml  # Mapper文件位置
+  type-aliases-package: com.exam.entity
+
+# 日志配置
+logging:
+  level:
+    com.exam: debug  # 项目包路径的日志级别
+    org.springframework.web: debug  # Spring Web日志级别 
+
+# AI 服务配置
+kimi:
+  api:
+    base-url: https://api.moonshot.cn/v1
+    api-key: sk-0FjcIWCa6i6jvSu3RMHVk8ujkL8FcsoRvtkg119jij7FQB2T  # 从环境变量获取，或使用默认值
+    model: moonshot-v1-32k  # 使用8k上下文模型进行判卷
+    max-tokens: 2000  # 最大生成token数
+    temperature: 0.3  # 较低的temperature确保判卷结果稳定
+
+# MinIO 文件存储配置  # MinIO对象存储配置
+minio:
+  endpoint: http://192.168.6.188:9000  # MinIO服务器地址
+  bucket-name: onlinebucket  # 存储桶名称
+  url-expiry: 604800  # URL过期时间（秒），默认7天
+  access-key: minioadmin
+  secret-key: minioadmin
+
+# 本地文件存储配置（备用）  # 本地文件上传配置（备用）
+file:
+  upload:
+    path: ./uploads/  # 本地文件存储路径
+    url-prefix: http://localhost:8080/files/  # 文件访问URL前缀
+
+# Knife4j API文档配置  # 增强版API文档配置
+knife4j:
+  enable: true  # 启用Knife4j增强功能
+  openapi:
+    title: 🎓 智能考试系统API文档  # 文档标题
+    description: 📚 基于Spring Boot + MyBatis Plus开发的智能考试系统  # 文档描述
+    version: v1.0.0  # API版本
+    concat: 🏫 智能考试系统开发团队  # 联系人信息
+  setting:
+    language: zh_cn  # 界面语言设置为中文
+    enable-version: true  # 启用版本控制
+    enable-swagger-models: true  # 启用数据模型展示
+    enable-document-manage: true  # 启用文档管理功能
+    enable-reload-cache-parameter: false  # 禁用缓存重载参数
+    enable-after-script: true  # 启用afterScript功能
+    enable-filter-multipart-api-method-type: POST  # 过滤文件上传接口的请求方式
+    enable-filter-multipart-apis: false  # 不过滤文件上传接口
+    enable-request-cache: true  # 启用请求缓存
+    enable-host: false  # 禁用host显示 
