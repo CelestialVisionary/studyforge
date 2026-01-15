@@ -51,3 +51,4 @@ spring-configuration-metadata.json
 *.tmp
 *.temp
 .cache/
+.trae/
