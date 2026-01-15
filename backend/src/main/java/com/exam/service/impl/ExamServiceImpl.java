@@ -70,7 +70,6 @@ public class ExamServiceImpl extends ServiceImpl<ExamRecordMapper, ExamRecord> i
         examRecord.setStartTime(LocalDateTime.now());
         examRecord.setStatus("进行中"); // 进行中
         examRecord.setScore(0); // 初始分数为0
-        examRecord.setWindowSwitches(0); // 初始窗口切换次数为0
         this.save(examRecord);
         return examRecord;
     }

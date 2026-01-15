@@ -15,7 +15,6 @@ import java.time.LocalDateTime;
  * MyBatis Plus配置类
  * 配置分页插件和其他必要的配置
  */
-@MapperScan(basePackages = "com.exam.mapper")
 @Configuration
 public class MybatisPlusConfig {
     
