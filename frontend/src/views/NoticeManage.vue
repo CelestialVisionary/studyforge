@@ -30,12 +30,39 @@
           </template>
         </el-table-column>
         <el-table-column prop="createTime" label="创建时间" width="180" />
-        <el-table-column label="操作" width="240" fixed="right">
+        <el-table-column label="操作" width="120" fixed="right">
           <template #default="scope">
-            <el-button size="small" @click="viewNoticeDetail(scope.row)" icon="View">查看</el-button>
-            <el-button size="small" @click="editNotice(scope.row)" icon="Edit">编辑</el-button>
-            <el-button size="small" :type="scope.row.isActive ? 'warning' : 'success'" @click="toggleStatus(scope.row)" icon="Switch">{{ scope.row.isActive ? '禁用' : '启用' }}</el-button>
-            <el-button size="small" type="danger" @click="deleteNotice(scope.row)" icon="Delete">删除</el-button>
+            <el-dropdown trigger="click">
+              <el-button size="small" type="primary" icon="More"></el-button>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item @click="viewNoticeDetail(scope.row)">
+                    <span class="flex items-center">
+                      <el-icon><View /></el-icon>
+                      <span style="margin-left: 8px;">查看</span>
+                    </span>
+                  </el-dropdown-item>
+                  <el-dropdown-item @click="editNotice(scope.row)">
+                    <span class="flex items-center">
+                      <el-icon><Edit /></el-icon>
+                      <span style="margin-left: 8px;">编辑</span>
+                    </span>
+                  </el-dropdown-item>
+                  <el-dropdown-item @click="toggleStatus(scope.row)" :type="scope.row.isActive ? 'warning' : 'success'">
+                    <span class="flex items-center">
+                      <el-icon><Switch /></el-icon>
+                      <span style="margin-left: 8px;">{{ scope.row.isActive ? '禁用' : '启用' }}</span>
+                    </span>
+                  </el-dropdown-item>
+                  <el-dropdown-item @click="deleteNotice(scope.row)" type="danger">
+                    <span class="flex items-center">
+                      <el-icon><Delete /></el-icon>
+                      <span style="margin-left: 8px;">删除</span>
+                    </span>
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
           </template>
         </el-table-column>
       </el-table>
@@ -90,7 +117,7 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Plus, Refresh, View, Edit, Switch, Delete } from '@element-plus/icons-vue'
+import { Plus, Refresh, View, Edit, Switch, Delete, More } from '@element-plus/icons-vue'
 import request from '../utils/request'
 
 const loading = ref(false)
@@ -192,4 +219,6 @@ onMounted(() => getNoticeList())
 .notice-meta { margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #eee; }
 .notice-content { margin-bottom: 20px; line-height: 1.6; color: #333; white-space: pre-wrap; }
 .notice-time { color: #999; font-size: 12px; text-align: right; }
+.flex { display: flex; align-items: center; }
+.items-center { align-items: center; }
 </style>

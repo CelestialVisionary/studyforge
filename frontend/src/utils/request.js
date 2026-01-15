@@ -15,6 +15,15 @@ request.interceptors.request.use(
   config => {
     // 在发送请求之前做些什么
     console.log('发送请求:', config.url)
+    
+    // 从本地存储中获取令牌
+    const token = localStorage.getItem('token')
+    
+    // 如果令牌存在，添加到请求头
+    if (token) {
+      config.headers.Authorization = token
+    }
+    
     return config
   },
   error => {

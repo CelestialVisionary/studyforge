@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.exam.mapper.KnowledgePointQuestionMapper">
+    
+    <!-- 根据知识点ID查询相关题目ID列表 -->
+    <select id="selectQuestionIdsByKnowledgePointId" resultType="java.lang.Long">
+        SELECT question_id 
+        FROM knowledge_point_question 
+        WHERE knowledge_point_id = #{knowledgePointId}
+    </select>
+    
+    <!-- 根据题目ID查询相关知识点ID列表 -->
+    <select id="selectKnowledgePointIdsByQuestionId" resultType="java.lang.Long">
+        SELECT knowledge_point_id 
+        FROM knowledge_point_question 
+        WHERE question_id = #{questionId}
+    </select>
+    
+</mapper>

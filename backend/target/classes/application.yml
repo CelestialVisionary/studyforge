@@ -65,8 +65,57 @@ mybatis-plus:
 # 日志配置
 logging:
   level:
-    com.exam: debug  # 项目包路径的日志级别
-    org.springframework.web: debug  # Spring Web日志级别 
+    com.exam: info  # 生产环境使用info级别，减少日志量
+    org.springframework.web: info  # Spring Web日志级别
+    org.springframework.security: warn  # 安全相关日志使用warn级别
+    org.springframework.boot.actuate: info  # Actuator日志级别
+  file:
+    name: logs/studyforge.log  # 日志文件路径
+  pattern:
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"  # 文件日志格式
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"  # 控制台日志格式
+  logback:
+    rollingpolicy:
+      file-name-pattern: logs/studyforge.%d{yyyy-MM-dd}.%i.log  # 滚动日志文件名格式
+      max-file-size: 10MB  # 单文件最大大小
+      max-history: 30  # 保留历史日志天数
+      total-size-cap: 2GB  # 总日志大小限制
+
+# Actuator配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,httptrace,loggers  # 暴露的端点
+      base-path: /actuator  # 端点基础路径
+  endpoint:
+    health:
+      show-details: always  # 显示健康详情
+      probes:
+        enabled: true  # 启用探测
+    metrics:
+      enabled: true  # 启用指标
+    prometheus:
+      enabled: true  # 启用Prometheus支持
+  metrics:
+    tags:
+      application: ${spring.application.name}  # 添加应用名称标签
+    distribution:
+      percentiles-histogram:
+        http:
+          server:
+            requests: true  # 启用HTTP请求的百分位直方图
+      percentiles:
+        http:
+          server:
+            requests: 0.5,0.9,0.95,0.99  # HTTP请求的百分位 
+
+# JWT配置
+jwt:
+  secret: smart-learning-platform-secret-key  # JWT签名密钥
+  expiration: 30  # JWT过期时间（分钟）
+  token-prefix: Bearer  # JWT令牌前缀
+  header: Authorization  # JWT令牌头名称
 
 # AI 服务配置
 kimi:
@@ -76,6 +125,15 @@ kimi:
     model: moonshot-v1-32k  # 使用8k上下文模型进行判卷
     max-tokens: 2000  # 最大生成token数
     temperature: 0.3  # 较低的temperature确保判卷结果稳定
+
+# GPT-3.5 API配置
+gpt:
+  api:
+    base-url: https://api.openai.com/v1
+    api-key: YOUR_GPT_API_KEY  # 替换为实际的GPT-3.5 API密钥
+    model: gpt-3.5-turbo  # 使用GPT-3.5模型
+    max-tokens: 1500  # 最大生成token数
+    temperature: 0.7  # 适中的temperature确保回答准确且自然
 
 # MinIO 文件存储配置  # MinIO对象存储配置
 minio:

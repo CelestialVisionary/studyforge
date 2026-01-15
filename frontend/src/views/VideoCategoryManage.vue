@@ -28,12 +28,39 @@
           </template>
         </el-table-column>
         <el-table-column prop="createdAt" label="创建时间" width="180" />
-        <el-table-column label="操作" width="300" fixed="right">
+        <el-table-column label="操作" width="120" fixed="right">
           <template #default="scope">
-            <el-button size="small" @click="addChildCategory(scope.row)" icon="Plus" v-if="!scope.row.parentId || scope.row.level < 3">添加子分类</el-button>
-            <el-button size="small" @click="editCategory(scope.row)" icon="Edit">编辑</el-button>
-            <el-button size="small" :type="scope.row.status === 1 ? 'warning' : 'success'" @click="toggleCategoryStatus(scope.row)" icon="Switch">{{ scope.row.status === 1 ? '禁用' : '启用' }}</el-button>
-            <el-button size="small" type="danger" @click="deleteCategory(scope.row)" icon="Delete" :disabled="scope.row.videoCount > 0 || (scope.row.children && scope.row.children.length > 0)">删除</el-button>
+            <el-dropdown trigger="click">
+              <el-button size="small" type="primary" icon="More"></el-button>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item @click="addChildCategory(scope.row)" v-if="!scope.row.parentId || scope.row.level < 3">
+                    <span class="flex items-center">
+                      <el-icon><Plus /></el-icon>
+                      <span style="margin-left: 8px;">添加子分类</span>
+                    </span>
+                  </el-dropdown-item>
+                  <el-dropdown-item @click="editCategory(scope.row)">
+                    <span class="flex items-center">
+                      <el-icon><Edit /></el-icon>
+                      <span style="margin-left: 8px;">编辑</span>
+                    </span>
+                  </el-dropdown-item>
+                  <el-dropdown-item @click="toggleCategoryStatus(scope.row)" :type="scope.row.status === 1 ? 'warning' : 'success'">
+                    <span class="flex items-center">
+                      <el-icon><Switch /></el-icon>
+                      <span style="margin-left: 8px;">{{ scope.row.status === 1 ? '禁用' : '启用' }}</span>
+                    </span>
+                  </el-dropdown-item>
+                  <el-dropdown-item @click="deleteCategory(scope.row)" type="danger" :disabled="scope.row.videoCount > 0 || (scope.row.children && scope.row.children.length > 0)">
+                    <span class="flex items-center">
+                      <el-icon><Delete /></el-icon>
+                      <span style="margin-left: 8px;">删除</span>
+                    </span>
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
           </template>
         </el-table-column>
       </el-table>
@@ -62,7 +89,7 @@
 <script setup>
 import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Plus, Refresh, Edit, Delete, Switch, Expand, Fold } from '@element-plus/icons-vue'
+import { Plus, Refresh, Edit, Delete, Switch, Expand, Fold, More } from '@element-plus/icons-vue'
 import { getVideoCategories, getCategoryTree, addVideoCategory, updateVideoCategory, deleteVideoCategory } from '../api/videoCategory'
 
 const categoryList = ref([])
@@ -194,4 +221,6 @@ onMounted(() => getCategoryList())
 .action-bar { margin-bottom: 20px; padding: 20px; background: #f8f9fa; border-radius: 8px; }
 .category-list { background: white; border-radius: 8px; padding: 20px; }
 .category-name { font-weight: 500; color: #303133; }
+.flex { display: flex; align-items: center; }
+.items-center { align-items: center; }
 </style>

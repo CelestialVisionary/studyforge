@@ -1,0 +1,111 @@
+version: '3.8'
+
+services:
+  # 后端服务
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: studyforge-backend
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/exam_system_online?useUnicode=true&characterEncoding=utf8&allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=Asia/Shanghai
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=1234
+      - SPRING_REDIS_HOST=redis
+      - SPRING_REDIS_PORT=6379
+      - SPRING_REDIS_DATABASE=0
+      - KIMI_API_API_KEY=${KIMI_API_KEY}
+      - GPT_API_API_KEY=${GPT_API_KEY}
+      - SPRING_CACHE_TYPE=redis
+      - SPRING_CACHE_REDIS_TIME_TO_LIVE=1800000
+      - SPRING_ACTUATOR_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,metrics
+    depends_on:
+      - mysql
+      - redis
+    restart: always
+    networks:
+      - studyforge-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # MySQL数据库
+  mysql:
+    image: mysql:8.0
+    container_name: studyforge-mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=1234
+      - MYSQL_DATABASE=exam_system_online
+      - MYSQL_CHARACTER_SET_SERVER=utf8mb4
+      - MYSQL_COLLATION_SERVER=utf8mb4_unicode_ci
+      - MYSQL_INIT_CONNECT=SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./material/数据库脚本:/docker-entrypoint-initdb.d
+      - mysql_config:/etc/mysql/conf.d
+    restart: always
+    networks:
+      - studyforge-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p1234"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Redis服务
+  redis:
+    image: redis:7.0-alpine
+    container_name: studyforge-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: always
+    networks:
+      - studyforge-network
+    command: redis-server --appendonly yes --requirepass "" --maxmemory 512mb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  mysql_data:
+    driver: local
+  mysql_config:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  studyforge-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.18.0.0/16

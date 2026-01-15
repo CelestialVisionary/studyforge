@@ -52,3 +52,6 @@ spring-configuration-metadata.json
 *.temp
 .cache/
 .trae/
+
+# Node.js
+node_modules/

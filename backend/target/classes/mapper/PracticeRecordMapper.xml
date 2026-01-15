@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.exam.mapper.PracticeRecordMapper">
+    
+    <!-- 根据用户ID获取练习记录列表 -->
+    <select id="selectByUserId" resultType="com.exam.entity.PracticeRecord">
+        SELECT * 
+        FROM practice_record 
+        WHERE user_id = #{userId} 
+        ORDER BY practice_time DESC
+    </select>
+    
+    <!-- 根据用户ID和练习类型获取练习记录列表 -->
+    <select id="selectByUserIdAndType" resultType="com.exam.entity.PracticeRecord">
+        SELECT * 
+        FROM practice_record 
+        WHERE user_id = #{userId} 
+        AND practice_type = #{practiceType} 
+        ORDER BY practice_time DESC
+    </select>
+    
+    <!-- 获取用户的练习统计信息 -->
+    <select id="selectPracticeStats" resultType="com.exam.mapper.PracticeRecordMapper.PracticeStats">
+        SELECT 
+            COUNT(*) AS totalPracticeCount,
+            SUM(question_count) AS totalQuestionCount,
+            SUM(correct_count) AS totalCorrectCount,
+            AVG(average_score) AS averageScore
+        FROM practice_record 
+        WHERE user_id = #{userId}
+    </select>
+    
+</mapper>

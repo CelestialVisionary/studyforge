@@ -29,8 +29,8 @@ public class RedisConfig {
     @Bean
     public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
         // 默认缓存配置
-        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
-                // 缓存过期时间30分钟
+        RedisCacheConfiguration defaultConfig = RedisCacheConfiguration.defaultCacheConfig()
+                // 默认缓存过期时间30分钟
                 .entryTtl(Duration.ofMinutes(30))
                 // 设置key的序列化方式
                 .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
@@ -39,8 +39,19 @@ public class RedisConfig {
                 // 不缓存null值
                 .disableCachingNullValues();
 
+        // 知识点缓存配置
+        RedisCacheConfiguration knowledgePointConfig = RedisCacheConfiguration.defaultCacheConfig()
+                // 设置key的序列化方式
+                .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
+                // 设置value的序列化方式
+                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer()))
+                // 不缓存null值
+                .disableCachingNullValues();
+
         return RedisCacheManager.builder(connectionFactory)
-                .cacheDefaults(config)
+                .cacheDefaults(defaultConfig)
+                // 为不同类型的知识点缓存设置不同的过期时间
+                .withCacheConfiguration("knowledge_point", knowledgePointConfig)
                 .transactionAware()
                 .build();
     }

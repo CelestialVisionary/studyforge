@@ -23,11 +23,33 @@
           </template>
         </el-table-column>
         <el-table-column prop="createTime" label="创建时间" width="180" />
-        <el-table-column label="操作" width="200" fixed="right">
+        <el-table-column label="操作" width="120" fixed="right">
           <template #default="scope">
-            <el-button size="small" @click="editBanner(scope.row)" icon="Edit">编辑</el-button>
-            <el-button size="small" :type="scope.row.isActive ? 'warning' : 'success'" @click="toggleBannerStatus(scope.row)" icon="Switch">{{ scope.row.isActive ? '禁用' : '启用' }}</el-button>
-            <el-button size="small" type="danger" @click="deleteBanner(scope.row)" icon="Delete">删除</el-button>
+            <el-dropdown trigger="click">
+              <el-button size="small" type="primary" icon="More"></el-button>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item @click="editBanner(scope.row)">
+                    <span class="flex items-center">
+                      <el-icon><Edit /></el-icon>
+                      <span style="margin-left: 8px;">编辑</span>
+                    </span>
+                  </el-dropdown-item>
+                  <el-dropdown-item @click="toggleBannerStatus(scope.row)" :type="scope.row.isActive ? 'warning' : 'success'">
+                    <span class="flex items-center">
+                      <el-icon><Switch /></el-icon>
+                      <span style="margin-left: 8px;">{{ scope.row.isActive ? '禁用' : '启用' }}</span>
+                    </span>
+                  </el-dropdown-item>
+                  <el-dropdown-item @click="deleteBanner(scope.row)" type="danger">
+                    <span class="flex items-center">
+                      <el-icon><Delete /></el-icon>
+                      <span style="margin-left: 8px;">删除</span>
+                    </span>
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
           </template>
         </el-table-column>
       </el-table>
@@ -88,7 +110,7 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Upload, Plus, Refresh, Edit, Switch, Delete } from '@element-plus/icons-vue'
+import { Upload, Plus, Refresh, Edit, Switch, Delete, More } from '@element-plus/icons-vue'
 import request from '../utils/request'
 
 const loading = ref(false)
@@ -219,4 +241,6 @@ onMounted(() => getBannerList())
 .link-tips p { margin: 0 0 4px 0; }
 .link-tips p:last-child { margin-bottom: 0; }
 .link-tips strong { color: #1d4ed8; }
+.flex { display: flex; align-items: center; }
+.items-center { align-items: center; }
 </style>

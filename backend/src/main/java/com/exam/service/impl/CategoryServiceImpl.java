@@ -1,12 +1,15 @@
 package com.exam.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.exam.common.CacheConstants;
 import com.exam.entity.Category;
 import com.exam.entity.Question;
 import com.exam.mapper.CategoryMapper;
 import com.exam.mapper.QuestionMapper;
 import com.exam.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -24,6 +27,7 @@ public class CategoryServiceImpl implements CategoryService {
     private QuestionMapper questionMapper;
 
     @Override
+    @Cacheable(value = CacheConstants.QUESTION_CACHE, key = "'category:tree'", unless = "#result == null || #result.isEmpty()")
     public List<Category> getCategoryTree() {
         // 获取所有分类
         List<Category> allCategories = categoryMapper.selectList(
@@ -39,6 +43,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Cacheable(value = CacheConstants.QUESTION_CACHE, key = "'category:list'", unless = "#result == null || #result.isEmpty()")
     public List<Category> getAllCategories() {
         // 获取所有分类
         List<Category> categories = categoryMapper.selectList(
@@ -53,16 +58,19 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @CacheEvict(value = CacheConstants.QUESTION_CACHE, allEntries = true)
     public void addCategory(Category category) {
         categoryMapper.insert(category);
     }
 
     @Override
+    @CacheEvict(value = CacheConstants.QUESTION_CACHE, allEntries = true)
     public void updateCategory(Category category) {
         categoryMapper.updateById(category);
     }
 
     @Override
+    @CacheEvict(value = CacheConstants.QUESTION_CACHE, allEntries = true)
     public void deleteCategory(Long id) {
         // 检查是否为一级分类
         Category category = categoryMapper.selectById(id);

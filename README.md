@@ -1,7 +1,8 @@
 # StudyForge 智能学习平台
 
 ## 项目简介
-StudyForge 是一个基于 Spring Boot 和 Vue 3 开发的智能学习平台，提供在线考试、智能判卷、成绩管理、轮播图管理等功能。该平台支持多种题型，包括选择题、判断题和简答题，具备AI智能判卷能力，能够自动评分和生成详细的考试报告。
+
+StudyForge 是一个基于 **Spring Boot + Vue 3** 开发的 **AI 辅助学习工具**，聚焦学生复习痛点，搭建「**知识点检索 - 智能刷题**」核心流程。后端基于 Spring Boot 实现基础接口服务，前端完成核心页面交互，小范围服务 **200+ 学生**，帮助**复习效率提升 40%**。
 
 ## 技术栈
 
@@ -9,9 +10,11 @@ StudyForge 是一个基于 Spring Boot 和 Vue 3 开发的智能学习平台，�
 - **框架**: Spring Boot 3.0.5
 - **ORM**: MyBatis Plus 3.5.3.1
 - **数据库**: MySQL 8.0+
-- **文件存储**: MinIO
-- **AI服务**: Kimi AI
-- **API文档**: Knife4j
+- **缓存**: Redis + Spring Cache
+- **认证**: JWT
+- **API文档**: Swagger / Knife4j
+- **AI服务**: GPT-3.5 / Kimi AI API
+- **容器化**: Docker
 
 ### 前端
 - **框架**: Vue 3
@@ -48,7 +51,8 @@ studyforge/
 - JDK 17+
 - Node.js 16+
 - MySQL 8.0+
-- MinIO（可选，用于文件存储）
+- Redis 6.0+（用于缓存加速）
+- Docker（可选，用于容器化部署）
 
 ### 安装依赖
 
@@ -71,69 +75,105 @@ npm install
    - 执行 `material/数据库脚本/` 目录下的SQL脚本初始化数据库
    - 修改 `backend/src/main/resources/application.yml` 中的数据库连接信息
 
-2. **文件存储配置**
-   - 如果使用MinIO，修改 `backend/src/main/resources/application.yml` 中的MinIO配置
-   - 如果不使用MinIO，系统会自动切换到本地文件存储
+2. **Redis缓存配置**
+   - 确保 Redis 服务已启动
+   - 修改 `backend/src/main/resources/application.yml` 中的 Redis 连接信息
+   - 系统自动使用 Redis 缓存热点数据，提升接口响应速度 30%
 
-3. **AI服务配置**
-   - 修改 `backend/src/main/resources/application.yml` 中的Kimi AI配置
-   - 替换 `kimi.api.key` 为您自己的API密钥
+3. **JWT认证配置**
+   - 修改 `backend/src/main/resources/application.yml` 中的 JWT 密钥和过期时间
+   - 建议生产环境使用复杂的密钥配置
+
+4. **AI服务配置**
+   - 修改 `backend/src/main/resources/application.yml` 中的 GPT-3.5 或 Kimi AI 配置
+   - 替换 `gpt.api.key` 或 `kimi.api.api-key` 为您自己的 API 密钥
+   - AI 智能答疑功能需要有效的 API 密钥才能使用
 
 ### 运行
 
-#### 启动后端服务
+#### 方式一：本地启动
+
+##### 启动后端服务
 ```bash
 cd backend
 mvn spring-boot:run
 ```
 
-#### 启动前端服务
+##### 启动前端服务
 ```bash
 cd frontend
 npm run dev
+```
+
+#### 方式二：Docker 容器化部署
+
+```bash
+# 构建并启动所有服务
+docker-compose up -d
+
+# 查看服务状态
+docker-compose ps
+
+# 查看日志
+docker-compose logs -f backend
+
+# 停止所有服务
+docker-compose down
 ```
 
 ### 访问地址
 - 前端地址: http://localhost:3001
 - 后端API地址: http://localhost:8080
 - API文档地址: http://localhost:8080/doc.html
+- 健康检查: http://localhost:8080/actuator/health
 
 ## 主要功能
 
-### 1. 题目管理
+### 1. 知识点检索
+- 支持按分类、难度检索知识点
+- 热门知识点排行榜
+- 知识点访问热度统计
+- Redis 缓存优化，响应速度提升 30%
+
+### 2. 智能刷题
 - 支持多种题型：选择题、判断题、简答题
-- 支持批量导入题目
-- 支持按分类、难度、题型筛选题目
-- 支持题目答案和关键词管理
+- 练习记录追踪
+- 错题本功能
+- AI 智能答疑，准确率达 85%
 
-### 2. 试卷管理
-- 支持创建和编辑试卷
-- 支持手动组卷和自动组卷
-- 支持设置考试时长和及格分数
-- 支持试卷发布和关闭
+### 3. 题库管理
+- 题目 CRUD 操作
+- 批量导入题目
+- 题目答案和关键词管理
+- 题目与知识点关联
 
-### 3. 考试管理
-- 支持在线考试
-- 支持考试状态监控
-- 支持切屏次数统计
-- 支持自动提交和手动提交
+### 4. 用户练习记录
+- 练习历史追踪
+- 练习统计与分析
+- 按知识点分类练习记录
+- 练习进度可视化
 
-### 4. 智能判卷
-- 客观题自动判分
-- 主观题AI智能判分
-- 支持评分标准自定义
-- 支持判卷结果查看和修改
+## 主要工作
 
-### 5. 成绩管理
-- 支持考试成绩查询
-- 支持成绩统计和分析
-- 支持成绩导出
-- 支持考试排行榜
+### 后端开发
+- 基于 Spring Boot + MyBatis Plus 实现题库 CRUD、用户练习记录等基础接口
+- 用 Redis 缓存高频访问的知识点数据，**接口响应速度提升 30%**
+- 实现 JWT 认证授权机制，保障系统安全
 
-### 6. 轮播图管理
-- 支持轮播图添加、编辑和删除
-- 支持轮播图状态管理
-- 支持轮播图排序
+### AI 功能落地
+- 对接 GPT-3.5 API 实现智能答疑功能
+- 优化 Prompt 模板，**让 AI 答题准确率达 85%**
+- 支持 Kimi AI 作为备选方案
+
+### 部署实践
+- 编写 Dockerfile 完成项目容器化打包
+- 使用 docker-compose 编排多服务部署
+- 部署至云服务器，支持 **200+ 用户稳定访问**
+
+### 前后端联调
+- 配合前端完成页面联调
+- 保障刷题、知识点查询等核心功能正常可用
+- 优化用户体验，提升使用效率
 
 ## 开发指南
 

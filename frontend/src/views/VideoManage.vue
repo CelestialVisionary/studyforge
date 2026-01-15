@@ -1,35 +1,39 @@
 <template>
   <div class="video-manage-container">
     <div class="search-bar">
-      <el-row :gutter="20">
-        <el-col :span="6">
+      <el-row :gutter="20" style="margin-bottom: 16px;">
+        <el-col :span="8">
           <el-input v-model="searchForm.keyword" placeholder="搜索视频标题或描述" clearable @input="handleSearch">
             <template #prefix><el-icon><Search /></el-icon></template>
           </el-input>
         </el-col>
-        <el-col :span="4">
-          <el-select v-model="searchForm.status" placeholder="选择状态" clearable @change="handleSearch">
+        <el-col :span="3">
+          <el-select v-model="searchForm.status" placeholder="状态" clearable @change="handleSearch">
             <el-option label="待审核" :value="0" />
             <el-option label="已发布" :value="1" />
             <el-option label="已拒绝" :value="2" />
             <el-option label="已下架" :value="3" />
           </el-select>
         </el-col>
-        <el-col :span="4">
-          <el-select v-model="searchForm.uploaderType" placeholder="上传者类型" clearable @change="handleSearch">
+        <el-col :span="3">
+          <el-select v-model="searchForm.uploaderType" placeholder="类型" clearable @change="handleSearch">
             <el-option label="用户投稿" :value="1" />
             <el-option label="管理员上传" :value="2" />
           </el-select>
         </el-col>
-        <el-col :span="4">
-          <el-select v-model="searchForm.categoryId" placeholder="选择分类" clearable @change="handleSearch">
+        <el-col :span="5">
+          <el-select v-model="searchForm.categoryId" placeholder="分类" clearable @change="handleSearch">
             <el-option v-for="category in categories" :key="category.id" :label="category.name" :value="category.id" />
           </el-select>
         </el-col>
-        <el-col :span="6">
-          <el-button type="primary" @click="handleSearch" icon="Search">搜索</el-button>
-          <el-button @click="resetSearch" icon="Refresh">重置</el-button>
-          <el-button type="success" @click="showUploadDialog" icon="Plus">上传视频</el-button>
+      </el-row>
+      <el-row :gutter="20">
+        <el-col :span="24">
+          <div class="button-row">
+            <el-button type="success" @click="showUploadDialog" icon="Plus" size="default">上传视频</el-button>
+            <el-button type="primary" @click="handleSearch" icon="Search" size="default">搜索</el-button>
+            <el-button @click="resetSearch" icon="Refresh" size="default">重置</el-button>
+          </div>
         </el-col>
       </el-row>
     </div>
@@ -60,14 +64,51 @@
         <el-table-column prop="viewCount" label="观看次数" width="100" />
         <el-table-column prop="likeCount" label="点赞数" width="80" />
         <el-table-column prop="createdAt" label="创建时间" width="180" />
-        <el-table-column label="操作" width="300" fixed="right">
+        <el-table-column label="操作" width="120" fixed="right">
           <template #default="scope">
-            <el-button size="small" @click="previewVideo(scope.row)" icon="VideoPlay">预览</el-button>
-            <el-button size="small" @click="editVideo(scope.row)" icon="Edit">编辑</el-button>
-            <el-button v-if="scope.row.status === 0" size="small" type="success" @click="auditVideoAction(scope.row, 1)" icon="Check">通过</el-button>
-            <el-button v-if="scope.row.status === 0" size="small" type="warning" @click="showRejectDialog(scope.row)" icon="Close">拒绝</el-button>
-            <el-button v-if="scope.row.status === 1" size="small" type="warning" @click="offlineVideoAction(scope.row)" icon="Bottom">下架</el-button>
-            <el-button size="small" type="danger" @click="deleteVideoAction(scope.row)" icon="Delete">删除</el-button>
+            <el-dropdown trigger="click">
+              <el-button size="small" type="primary" icon="More"></el-button>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item @click="previewVideo(scope.row)">
+                    <span class="flex items-center">
+                      <el-icon><VideoPlay /></el-icon>
+                      <span style="margin-left: 8px;">预览</span>
+                    </span>
+                  </el-dropdown-item>
+                  <el-dropdown-item @click="editVideo(scope.row)">
+                    <span class="flex items-center">
+                      <el-icon><Edit /></el-icon>
+                      <span style="margin-left: 8px;">编辑</span>
+                    </span>
+                  </el-dropdown-item>
+                  <el-dropdown-item v-if="scope.row.status === 0" @click="auditVideoAction(scope.row, 1)" type="success">
+                    <span class="flex items-center">
+                      <el-icon><Check /></el-icon>
+                      <span style="margin-left: 8px;">通过</span>
+                    </span>
+                  </el-dropdown-item>
+                  <el-dropdown-item v-if="scope.row.status === 0" @click="showRejectDialog(scope.row)" type="warning">
+                    <span class="flex items-center">
+                      <el-icon><Close /></el-icon>
+                      <span style="margin-left: 8px;">拒绝</span>
+                    </span>
+                  </el-dropdown-item>
+                  <el-dropdown-item v-if="scope.row.status === 1" @click="offlineVideoAction(scope.row)" type="warning">
+                    <span class="flex items-center">
+                      <el-icon><Bottom /></el-icon>
+                      <span style="margin-left: 8px;">下架</span>
+                    </span>
+                  </el-dropdown-item>
+                  <el-dropdown-item @click="deleteVideoAction(scope.row)" type="danger">
+                    <span class="flex items-center">
+                      <el-icon><Delete /></el-icon>
+                      <span style="margin-left: 8px;">删除</span>
+                    </span>
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
           </template>
         </el-table-column>
       </el-table>
@@ -156,7 +197,7 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Search, Refresh, Edit, Delete, Plus, VideoPlay, Check, Close, Bottom, UploadFilled, Picture } from '@element-plus/icons-vue'
+import { Search, Refresh, Edit, Delete, Plus, VideoPlay, Check, Close, Bottom, UploadFilled, Picture, More } from '@element-plus/icons-vue'
 import { getVideosForAdmin, uploadVideoByAdmin, auditVideo, offlineVideo, deleteVideo } from '../api/video'
 import { getVideoCategories, getVideoCategoryTree } from '../api/videoCategory'
 
@@ -354,9 +395,45 @@ onMounted(() => { getCategoryList(); getVideoList(); })
 
 <style scoped>
 .video-manage-container { padding: 20px; }
-.search-bar { margin-bottom: 20px; padding: 20px; background: #f8f9fa; border-radius: 8px; }
-.video-list { background: white; border-radius: 8px; padding: 20px; }
-.pagination { margin-top: 20px; text-align: right; }
+.search-bar { margin-bottom: 20px; padding: 24px; background: #ffffff; border: 1px solid #e4e7ed; border-radius: 12px; box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.04); }
+.search-bar .el-col {
+  display: flex;
+  align-items: center;
+  height: 40px;
+}
+.search-bar .el-input,
+.search-bar .el-select {
+  width: 100%;
+}
+.video-list { background: white; border: 1px solid #e4e7ed; border-radius: 12px; padding: 20px; box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.04); }
+.pagination { margin-top: 20px; text-align: right; padding: 16px 0;
+  .el-pagination {
+    &::after {
+      content: '';
+      display: table;
+      clear: both;
+    }
+  }
+  .el-pagination__total,
+  .el-pagination__sizes,
+  .el-pagination__prev,
+  .el-pagination__next,
+  .el-pager li {
+    margin-right: 8px;
+  }
+  .el-pagination button,
+  .el-pagination span:not(.el-pagination__total) {
+    height: 32px;
+    line-height: 32px;
+    border-radius: 6px;
+  }
+  .el-pager li {
+    height: 32px;
+    line-height: 32px;
+    min-width: 32px;
+    border-radius: 6px;
+  }
+}
 .image-slot { display: flex; justify-content: center; align-items: center; width: 100%; height: 100%; background: #f5f7fa; color: #909399; }
 .video-preview { text-align: center; }
 .video-info { margin-top: 20px; text-align: left; }
@@ -366,4 +443,16 @@ onMounted(() => { getCategoryList(); getVideoList(); })
 .duration-tips { margin-top: 5px; }
 .tags-input-section { display: flex; align-items: center; }
 .tags-display { margin-left: 10px; }
+.flex { display: flex; align-items: center; }
+.items-center { align-items: center; }
+.button-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: flex-start;
+  height: 100%;
+}
+.button-row .el-button {
+  margin-bottom: 0;
+}
 </style>
