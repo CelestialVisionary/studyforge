@@ -75,7 +75,7 @@ public class SecurityConfig {
             // 配置授权规则
             .authorizeHttpRequests(auth -> auth
                 // 允许所有请求访问以下路径
-                .requestMatchers("/api/auth/**", "/doc.html", "/swagger-ui/**", "/v3/api-docs/**", "/files/**").permitAll()
+                .requestMatchers("/api/auth/**", "/api/ai/**", "/doc.html", "/swagger-ui/**", "/v3/api-docs/**", "/files/**").permitAll()
                 // 其他所有请求需要认证
                 .anyRequest().authenticated()
             )

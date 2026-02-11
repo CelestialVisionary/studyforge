@@ -2,7 +2,7 @@ package com.exam.controller;
 
 import com.exam.common.Result;
 import com.exam.entity.PracticeRecord;
-import com.exam.mapper.PracticeRecordMapper;
+import com.exam.entity.PracticeStats;
 import com.exam.service.PracticeRecordService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -115,9 +115,9 @@ public class PracticeRecordController {
      */
     @GetMapping("/stats/{userId}")
     @Operation(summary = "获取用户练习统计信息", description = "根据用户ID获取练习统计信息")
-    public ResponseEntity<Result<PracticeRecordMapper.PracticeStats>> getPracticeStats(@PathVariable Long userId) {
+    public ResponseEntity<Result<PracticeStats>> getPracticeStats(@PathVariable Long userId) {
         try {
-            PracticeRecordMapper.PracticeStats practiceStats = practiceRecordService.getPracticeStatsByUserId(userId);
+            PracticeStats practiceStats = practiceRecordService.getPracticeStatsByUserId(userId);
             return ResponseEntity.ok(Result.success(practiceStats, "练习统计信息查询成功"));
         } catch (Exception e) {
             log.error("获取练习统计信息失败: {}", e.getMessage(), e);

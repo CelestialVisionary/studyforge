@@ -36,6 +36,7 @@ public class AiController {
     @Data
     public static class SmartAnswerRequest {
         private String question;
+        private String modelType; // 模型类型："kimi" 或 "gpt" 或 "aimodule"
     }
     
     /**
@@ -53,10 +54,11 @@ public class AiController {
      * @return 答疑响应
      */
     @PostMapping("/smart-answer")
-    @Operation(summary = "智能答疑", description = "使用GPT-3.5模型回答用户的学习问题")
+    @Operation(summary = "智能答疑", description = "使用指定模型回答用户的学习问题")
     public ResponseEntity<SmartAnswerResponse> getSmartAnswer(@RequestBody SmartAnswerRequest request) {
         // 调用AI服务获取智能回答
-        String answer = aiService.getSmartAnswer(request.getQuestion());
+        String modelType = request.getModelType() != null ? request.getModelType() : "gpt"; // 默认使用GPT
+        String answer = aiService.getSmartAnswer(request.getQuestion(), modelType);
         
         // 构建响应
         SmartAnswerResponse response = new SmartAnswerResponse();

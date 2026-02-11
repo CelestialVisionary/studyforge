@@ -3,6 +3,7 @@ package com.exam.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.exam.entity.PracticeRecord;
+import com.exam.entity.PracticeStats;
 import com.exam.mapper.PracticeRecordMapper;
 import com.exam.service.PracticeRecordService;
 import lombok.extern.slf4j.Slf4j;
@@ -53,7 +54,7 @@ public class PracticeRecordServiceImpl extends ServiceImpl<PracticeRecordMapper,
      * 获取用户的练习统计信息
      */
     @Override
-    public PracticeRecordMapper.PracticeStats getPracticeStatsByUserId(Long userId) {
+    public PracticeStats getPracticeStatsByUserId(Long userId) {
         return practiceRecordMapper.selectPracticeStats(userId);
     }
     

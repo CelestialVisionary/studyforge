@@ -2,6 +2,7 @@ package com.exam.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.exam.entity.PracticeRecord;
+import com.exam.entity.PracticeStats;
 import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
@@ -31,14 +32,4 @@ public interface PracticeRecordMapper extends BaseMapper<PracticeRecord> {
      * @return 练习统计信息
      */
     PracticeStats selectPracticeStats(@Param("userId") Long userId);
-    
-    /**
-     * 练习统计信息内部类
-     */
-    interface PracticeStats {
-        Integer getTotalPracticeCount(); // 总练习次数
-        Integer getTotalQuestionCount(); // 总练习题目数
-        Integer getTotalCorrectCount(); // 总正确题目数
-        Double getAverageScore(); // 平均得分
-    }
 }

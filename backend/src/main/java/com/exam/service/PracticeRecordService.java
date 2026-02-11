@@ -2,6 +2,7 @@ package com.exam.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.exam.entity.PracticeRecord;
+import com.exam.entity.PracticeStats;
 import com.exam.mapper.PracticeRecordMapper;
 
 import java.util.List;
@@ -37,7 +38,7 @@ public interface PracticeRecordService extends IService<PracticeRecord> {
      * @param userId 用户ID
      * @return 练习统计信息
      */
-    PracticeRecordMapper.PracticeStats getPracticeStatsByUserId(Long userId);
+    PracticeStats getPracticeStatsByUserId(Long userId);
     
     /**
      * 统计用户练习某知识点的次数

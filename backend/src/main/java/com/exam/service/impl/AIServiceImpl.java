@@ -47,6 +47,12 @@ public class AIServiceImpl implements AIService {
     @Value("${gpt.api.max-tokens}")
     private Integer gptMaxTokens;
 
+    // AI Module配置
+    @Value("${aimodule.api.base-url:http://localhost:8000}")
+    private String aimoduleBaseUrl;
+    @Value("${aimodule.api.model:default}")
+    private String aimoduleModel;
+
     /**
      * 获取AI聊天模型的响应
      * @param messages 聊天消息列表
@@ -60,11 +66,16 @@ public class AIServiceImpl implements AIService {
     /**
      * 获取AI聊天模型的响应
      * @param messages 聊天消息列表
-     * @param modelType 模型类型："kimi" 或 "gpt"
+     * @param modelType 模型类型："kimi" 或 "gpt" 或 "aimodule"
      * @return AI的响应内容
      */
     public String getChatCompletion(List<ChatMessage> messages, String modelType) {
         try {
+            // 处理AI Module
+            if ("aimodule".equalsIgnoreCase(modelType)) {
+                return getAIModuleChatCompletion(messages);
+            }
+
             // 根据模型类型选择配置
             String apiKey, baseUrl, model, temperature, maxTokens;
             if ("gpt".equalsIgnoreCase(modelType)) {
@@ -113,11 +124,66 @@ public class AIServiceImpl implements AIService {
     }
 
     /**
-     * 智能答疑功能 - 使用GPT-3.5模型
+     * 获取AI Module聊天模型的响应
+     * @param messages 聊天消息列表
+     * @return AI的响应内容
+     */
+    private String getAIModuleChatCompletion(List<ChatMessage> messages) {
+        try {
+            // 1. 构建请求头
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            // 2. 构建请求体
+            java.util.Map<String, Object> requestBody = new java.util.HashMap<>();
+            requestBody.put("model", "gpt-3.5-turbo");
+            requestBody.put("messages", messages);
+            requestBody.put("temperature", 0.7);
+            requestBody.put("max_tokens", 1024);
+
+            // 3. 发送请求到AI Module聊天完成接口
+            String apiUrl = aimoduleBaseUrl + "/api/chat/completions";
+            HttpEntity<java.util.Map<String, Object>> httpEntity = new HttpEntity<>(requestBody, headers);
+            
+            // 使用String.class接收响应，然后解析JSON
+            String responseStr = restTemplate.postForObject(apiUrl, httpEntity, String.class);
+            
+            // 解析JSON响应
+            if (responseStr != null) {
+                com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+                com.fasterxml.jackson.databind.JsonNode rootNode = mapper.readTree(responseStr);
+                String content = rootNode.get("content").asText();
+                return content;
+            }
+
+            return "AI Module服务暂不可用，请稍后再试。";
+        } catch (Exception e) {
+            System.err.println("AI Module服务调用失败: " + e.getMessage());
+            return "AI Module服务暂时不可用，请稍后再试。";
+        }
+    }
+
+    /**
+     * 智能答疑功能 - 默认使用GPT-3.5模型
      * @param question 用户问题
      * @return AI回答
      */
     public String getSmartAnswer(String question) {
+        return getSmartAnswer(question, "gpt");
+    }
+
+    /**
+     * 智能答疑功能
+     * @param question 用户问题
+     * @param modelType 模型类型："kimi" 或 "gpt" 或 "aimodule"
+     * @return AI回答
+     */
+    public String getSmartAnswer(String question, String modelType) {
+        // 处理AI Module
+        if ("aimodule".equalsIgnoreCase(modelType)) {
+            return getAIModuleSmartAnswer(question);
+        }
+
         // 构建系统提示
         ChatMessage systemMessage = new ChatMessage();
         systemMessage.setRole("system");
@@ -168,6 +234,43 @@ public class AIServiceImpl implements AIService {
         userMessage.setContent(question);
 
         // 发送请求
-        return getChatCompletion(List.of(systemMessage, userMessage), "gpt");
+        return getChatCompletion(List.of(systemMessage, userMessage), modelType);
+    }
+
+    /**
+     * 获取AI Module智能答疑响应
+     * @param question 用户问题
+     * @return AI回答
+     */
+    private String getAIModuleSmartAnswer(String question) {
+        try {
+            // 1. 构建请求头
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            // 2. 构建请求体
+            java.util.Map<String, Object> requestBody = new java.util.HashMap<>();
+            requestBody.put("question", question);
+
+            // 3. 发送请求到AI Module智能答疑接口
+            String apiUrl = aimoduleBaseUrl + "/api/chat/smart-answer";  
+            HttpEntity<java.util.Map<String, Object>> httpEntity = new HttpEntity<>(requestBody, headers);
+            
+            // 使用String.class接收响应，然后解析JSON
+            String responseStr = restTemplate.postForObject(apiUrl, httpEntity, String.class);
+            
+            // 解析JSON响应
+            if (responseStr != null) {
+                com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+                com.fasterxml.jackson.databind.JsonNode rootNode = mapper.readTree(responseStr);
+                String content = rootNode.get("content").asText();
+                return content;
+            }
+
+            return "AI Module服务暂不可用，请稍后再试。";
+        } catch (Exception e) {
+            System.err.println("AI Module智能答疑失败: " + e.getMessage());
+            return "AI Module服务暂时不可用，请稍后再试。";
+        }
     }
 } 

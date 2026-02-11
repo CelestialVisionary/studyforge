@@ -13,8 +13,15 @@ StudyForge 是一个基于 **Spring Boot + Vue 3** 开发的 **AI 辅助学习�
 - **缓存**: Redis + Spring Cache
 - **认证**: JWT
 - **API文档**: Swagger / Knife4j
-- **AI服务**: GPT-3.5 / Kimi AI API
+- **AI服务**: GPT-3.5 / Kimi AI API / 本地AI Module
 - **容器化**: Docker
+
+### AI Module
+- **框架**: FastAPI
+- **AI技术**: LangChain + LangGraph + PEFT
+- **模型**: Hugging Face Transformers
+- **微调技术**: LoRA (Low-Rank Adaptation)
+- **部署**: 独立服务部署
 
 ### 前端
 - **框架**: Vue 3
@@ -28,6 +35,18 @@ StudyForge 是一个基于 **Spring Boot + Vue 3** 开发的 **AI 辅助学习�
 
 ```
 studyforge/
+├── aimodule/               # AI模块代码
+│   ├── api/                           # API接口
+│   │   ├── chat.py                    # 聊天相关接口
+│   │   ├── finetune.py                # 模型微调接口
+│   │   └── model.py                   # 模型管理接口
+│   ├── model/                         # 模型实现
+│   │   ├── chat_model.py              # 聊天模型
+│   │   ├── finetune_model.py          # 微调模型
+│   │   └── model_manager.py           # 模型管理器
+│   ├── main.py                        # 服务入口
+│   ├── requirements.txt               # 依赖配置
+│   └── start_service.bat              # 启动脚本
 ├── backend/                # 后端代码
 │   ├── src/main/java/com/exam/           # 主源码目录
 │   ├── src/main/resources/             # 资源文件
@@ -50,6 +69,7 @@ studyforge/
 ### 环境要求
 - JDK 17+
 - Node.js 16+
+- Python 3.10+（用于AI Module）
 - MySQL 8.0+
 - Redis 6.0+（用于缓存加速）
 - Docker（可选，用于容器化部署）
@@ -66,6 +86,12 @@ mvn install
 ```bash
 cd frontend
 npm install
+```
+
+#### AI Module依赖安装
+```bash
+cd aimodule
+pip install -r requirements.txt
 ```
 
 ### 配置
@@ -89,6 +115,11 @@ npm install
    - 替换 `gpt.api.key` 或 `kimi.api.api-key` 为您自己的 API 密钥
    - AI 智能答疑功能需要有效的 API 密钥才能使用
 
+5. **AI Module配置**
+   - AI Module 默认使用回退模型，无需额外配置
+   - 若要使用自定义模型，需在 `aimodule/model/chat_model.py` 中修改模型配置
+   - 支持通过环境变量或配置文件设置模型路径和参数
+
 ### 运行
 
 #### 方式一：本地启动
@@ -103,6 +134,15 @@ mvn spring-boot:run
 ```bash
 cd frontend
 npm run dev
+```
+
+##### 启动AI Module服务
+```bash
+cd aimodule
+# Windows
+start_service.bat
+# Linux/Mac
+python main.py
 ```
 
 #### 方式二：Docker 容器化部署
@@ -126,6 +166,8 @@ docker-compose down
 - 后端API地址: http://localhost:8080
 - API文档地址: http://localhost:8080/doc.html
 - 健康检查: http://localhost:8080/actuator/health
+- AI Module地址: http://localhost:8000
+- AI Module文档: http://localhost:8000/docs
 
 ## 主要功能
 
@@ -140,6 +182,8 @@ docker-compose down
 - 练习记录追踪
 - 错题本功能
 - AI 智能答疑，准确率达 85%
+- 本地AI Module支持，无需外部API密钥
+- 模型微调功能，支持自定义模型训练
 
 ### 3. 题库管理
 - 题目 CRUD 操作
@@ -164,6 +208,14 @@ docker-compose down
 - 对接 GPT-3.5 API 实现智能答疑功能
 - 优化 Prompt 模板，**让 AI 答题准确率达 85%**
 - 支持 Kimi AI 作为备选方案
+
+### AI Module 开发
+- 基于 FastAPI 实现独立的 AI 服务模块
+- 集成 LangChain + LangGraph 构建智能对话流程
+- 实现 PEFT (Parameter-Efficient Fine-Tuning) 支持模型微调
+- 使用 LoRA 技术实现高效的模型适应
+- 支持本地模型部署和管理
+- 实现与后端服务的无缝集成
 
 ### 部署实践
 - 编写 Dockerfile 完成项目容器化打包

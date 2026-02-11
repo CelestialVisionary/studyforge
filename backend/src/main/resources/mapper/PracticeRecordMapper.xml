@@ -22,7 +22,7 @@
     </select>
     
     <!-- 获取用户的练习统计信息 -->
-    <select id="selectPracticeStats" resultType="com.exam.mapper.PracticeRecordMapper.PracticeStats">
+    <select id="selectPracticeStats" resultType="com.exam.entity.PracticeStats">
         SELECT 
             COUNT(*) AS totalPracticeCount,
             SUM(question_count) AS totalQuestionCount,

@@ -1,0 +1,29 @@
+# 核心依赖
+fastapi
+uvicorn
+pydantic
+pydantic-settings
+
+# LangChain相关
+langchain
+langchain-core
+langchain-community
+
+# LangGraph相关
+langgraph
+
+# 模型相关
+transformers
+torch
+peft
+datasets
+
+# 工具库
+numpy
+requests
+python-dotenv
+
+# 开发工具
+black
+flake8
+mypy
