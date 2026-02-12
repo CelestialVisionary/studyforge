@@ -8,12 +8,14 @@ import com.exam.entity.Question;
 import com.exam.entity.QuestionChoice;
 import com.exam.entity.QuestionAnswer;
 import com.exam.service.QuestionService;
+import com.exam.service.AIService;
 import com.exam.mapper.QuestionChoiceMapper;
 import com.exam.mapper.QuestionAnswerMapper;
 import com.exam.vo.QuestionQueryVo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -71,6 +73,13 @@ public class QuestionController {
      */
     @Autowired
     private QuestionAnswerMapper questionAnswerMapper;
+    
+    /**
+     * 注入AI服务
+     * 用于智能答题功能集成
+     */
+    @Autowired
+    private AIService aiService;
     
     /**
      * 批量为题目列表填充选项和答案，避免N+1查询
@@ -396,6 +405,53 @@ public class QuestionController {
             return Result.success(count, "热门题目缓存刷新成功，共处理 " + count + " 道题目");
         } catch (Exception e) {
             return Result.error("刷新热门题目缓存失败：" + e.getMessage());
+        }
+    }
+    
+    /**
+     * 智能答题请求DTO
+     */
+    @Data
+    public static class SmartAnswerRequest {
+        private String question; // 用户问题
+        private String modelType; // 模型类型："kimi" 或 "gpt" 或 "aimodule"
+    }
+    
+    /**
+     * 智能答题响应DTO
+     */
+    @Data
+    public static class SmartAnswerResponse {
+        private String answer; // AI回答
+    }
+    
+    /**
+     * 智能答题功能 - 集成AI模块
+     * 
+     * 业务场景：
+     * - 学生在刷题过程中遇到困难题目，可通过此接口获取AI辅助解答
+     * - 提供多种AI模型选择，满足不同场景需求
+     * - 优化学习体验，提高学习效率
+     * 
+     * @param request 智能答题请求
+     * @return 智能答题响应
+     */
+    @PostMapping("/smart-answer")
+    @Operation(summary = "智能答题", description = "集成AI模块，为用户提供题目解答的智能辅助")
+    public Result<SmartAnswerResponse> getSmartAnswer(@RequestBody SmartAnswerRequest request) {
+        try {
+            // 调用AI服务获取智能回答
+            String modelType = request.getModelType() != null ? request.getModelType() : "aimodule"; // 默认使用本地AI模块
+            String answer = aiService.getSmartAnswer(request.getQuestion(), modelType);
+            
+            // 构建响应
+            SmartAnswerResponse response = new SmartAnswerResponse();
+            response.setAnswer(answer);
+            
+            return Result.success(response);
+        } catch (Exception e) {
+            log.error("智能答题失败: {}", e.getMessage(), e);
+            return Result.error("智能答题失败: " + e.getMessage());
         }
     }
     

@@ -155,6 +155,15 @@
                 >
                   {{ question.isCollected ? '已收藏' : '收藏' }}
                 </el-button>
+                <el-button 
+                  size="small" 
+                  type="danger"
+                  @click="smartAnswer(question)"
+                  :icon="'MagicStick'"
+                  :loading="question.smartAnswerLoading"
+                >
+                  AI智能答题
+                </el-button>
               </div>
             </div>
 
@@ -236,6 +245,15 @@
                   </div>
                   <div class="analysis-content">{{ question.analysis }}</div>
                 </div>
+              </div>
+
+              <!-- AI智能答题结果 -->
+              <div v-if="question.smartAnswer" class="smart-answer-section">
+                <div class="smart-answer-header">
+                  <el-icon><MagicStick /></el-icon>
+                  <span>AI智能答题</span>
+                </div>
+                <div class="smart-answer-content">{{ question.smartAnswer }}</div>
               </div>
 
               <!-- 答题结果反馈 -->
@@ -338,7 +356,7 @@ import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { 
   Search, ArrowLeft, Document, DataAnalysis, View, Hide, Star, StarFilled, 
-  Check, InfoFilled, Notebook, Refresh
+  Check, InfoFilled, Notebook, Refresh, MagicStick
 } from '@element-plus/icons-vue'
 import request from '../utils/request'
 
@@ -1011,6 +1029,43 @@ const resetAllPractice = async () => {
   }
 }
 
+// AI智能答题
+const smartAnswer = async (question) => {
+  try {
+    // 设置加载状态
+    question.smartAnswerLoading = true
+    
+    // 构建问题内容
+    let questionContent = question.title
+    
+    // 如果是选择题，添加选项
+    if (question.type === 'CHOICE' && question.choices) {
+      questionContent += '\n选项：'
+      question.choices.forEach((choice, index) => {
+        questionContent += `\n${String.fromCharCode(65 + index)}. ${choice.content}`
+      })
+    }
+    
+    // 调用后端智能答题接口
+    const res = await request.post('/api/questions/smart-answer', {
+      question: questionContent,
+      modelType: 'aimodule' // 使用本地AI模块
+    })
+    
+    // 保存AI答题结果
+    question.smartAnswer = res.data.answer
+    
+    // 显示成功提示
+    ElMessage.success('AI智能答题完成')
+  } catch (error) {
+    console.error('AI智能答题失败：', error)
+    ElMessage.error('AI智能答题失败，请稍后重试')
+  } finally {
+    // 清除加载状态
+    question.smartAnswerLoading = false
+  }
+}
+
 // 返回正常模式
 const backToNormalMode = () => {
   searchForm.collected = false
@@ -1355,6 +1410,33 @@ onMounted(async () => {
 /* 反馈区域 */
 .feedback-section {
   margin-top: 16px;
+}
+
+/* AI智能答题区域 */
+.smart-answer-section {
+  background: #fff1f0;
+  border: 1px solid #ffccc7;
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 16px;
+}
+
+.smart-answer-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  font-weight: 600;
+  color: #cf1322;
+}
+
+.smart-answer-content {
+  background: white;
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid #d9d9d9;
+  white-space: pre-wrap;
+  line-height: 1.6;
 }
 
 /* 空状态 */
