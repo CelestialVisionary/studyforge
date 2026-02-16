@@ -18,10 +18,14 @@ StudyForge 是一个基于 **Spring Boot + Vue 3** 开发的 **AI 辅助学习�
 
 ### AI Module
 - **框架**: FastAPI
-- **AI技术**: LangChain + LangGraph + PEFT
-- **模型**: Hugging Face Transformers
+- **AI技术**: LangChain + LangGraph + PEFT + OpenAI Python Client
+- **模型**: 
+  - 本地模型: Ollama (mygemma)
+  - 云端模型: 阿里云百炼 (qwen3-max)、OpenAI (gpt-3.5-turbo)
 - **微调技术**: LoRA (Low-Rank Adaptation)
 - **部署**: 独立服务部署
+- **API兼容性**: 支持标准OpenAI API接口格式
+- **流式响应**: 支持实时流式响应和思考过程提取
 
 ### 前端
 - **框架**: Vue 3
@@ -116,9 +120,14 @@ pip install -r requirements.txt
    - AI 智能答疑功能需要有效的 API 密钥才能使用
 
 5. **AI Module配置**
-   - AI Module 默认使用回退模型，无需额外配置
-   - 若要使用自定义模型，需在 `aimodule/model/chat_model.py` 中修改模型配置
-   - 支持通过环境变量或配置文件设置模型路径和参数
+   - **默认配置**：AI Module 默认使用本地 Ollama 服务，连接地址为 `http://localhost:11434/v1`
+   - **模型配置**：默认使用 `mygemma` 模型，可在 `aimodule/model/chat_model.py` 中修改
+   - **OpenAI 库使用**：采用标准 OpenAI 库使用方式，支持 ChatCompletion 对象的完整功能
+   - **环境变量配置**：
+     - `DASHSCOPE_API_KEY`：阿里云百炼 API 密钥（可选）
+     - `OPENAI_API_KEY`：OpenAI 原生 API 密钥（可选）
+   - **回退机制**：若本地 Ollama 服务不可用，自动回退到内置回退模型
+   - **流式响应**：支持流式响应处理，实时显示思考过程和回答内容
 
 ### 运行
 
@@ -182,10 +191,15 @@ docker-compose down
 - 练习记录追踪
 - 错题本功能
 - AI 智能答疑，准确率达 85%
-- 本地AI Module支持，无需外部API密钥
-- 模型微调功能，支持自定义模型训练
-- 前端AI智能答题按钮，一键获取AI辅助解答
-- 实时显示AI答题结果，提升学习体验
+- **本地AI Module支持**：集成本地Ollama服务，无需外部API密钥
+- **多模型支持**：
+  - 本地模型：Ollama (mygemma)
+  - 云端模型：阿里云百炼 (qwen3-max)、OpenAI (gpt-3.5-turbo)
+- **OpenAI标准接口**：采用标准OpenAI库使用方式，支持完整的ChatCompletion功能
+- **流式响应**：实时显示AI思考过程和答题结果
+- **模型微调功能**：支持自定义模型训练
+- **前端AI智能答题按钮**：一键获取AI辅助解答
+- **实时显示AI答题结果**：提升学习体验
 
 ### 3. 题库管理
 - 题目 CRUD 操作
@@ -213,11 +227,15 @@ docker-compose down
 
 ### AI Module 开发
 - 基于 FastAPI 实现独立的 AI 服务模块
-- 集成 LangChain + LangGraph 构建智能对话流程
+- 集成 LangChain + LangGraph + OpenAI Python Client 构建智能对话流程
 - 实现 PEFT (Parameter-Efficient Fine-Tuning) 支持模型微调
 - 使用 LoRA 技术实现高效的模型适应
-- 支持本地模型部署和管理
-- 实现与后端服务的无缝集成
+- **本地模型部署**：集成本地 Ollama 服务，支持 mygemma 等模型
+- **云端模型支持**：集成阿里云百炼 (qwen3-max) 和 OpenAI (gpt-3.5-turbo) 模型
+- **OpenAI 标准接口**：采用标准 OpenAI 库使用方式，支持完整的 ChatCompletion 功能
+- **流式响应处理**：实现实时流式响应和思考过程提取
+- **智能回退机制**：当高级模型不可用时，自动回退到内置回退模型
+- **实现与后端服务的无缝集成**
 
 ### 部署实践
 - 编写 Dockerfile 完成项目容器化打包

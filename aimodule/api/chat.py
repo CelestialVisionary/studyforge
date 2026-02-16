@@ -81,7 +81,7 @@ def smart_answer(question: str):
         # 调用模型获取响应
         response = chat_model.generate(
             messages=[system_message, user_message],
-            model_name="default",
+            model_name="qwen3-max",
             temperature=0.7,
             max_tokens=1024
         )
