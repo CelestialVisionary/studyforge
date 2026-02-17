@@ -22,7 +22,7 @@
         FROM exam_records er
         <!-- LEFT JOIN关联paper表获取试卷名称和总分 -->
         LEFT JOIN paper e ON er.exam_id = e.id
-        WHERE er.status = '已完成'                             <!-- 只查询已完成的考试记录 -->
+        WHERE er.status IN ('已完成', '已批阅')                 <!-- 只查询已完成或已批阅的考试记录 -->
         <!-- 动态添加试卷ID条件 -->
         <if test="paperId != null">
             AND er.exam_id = #{paperId}
