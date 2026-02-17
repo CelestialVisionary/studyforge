@@ -35,18 +35,20 @@
         </div>
 
         <!-- 轮播公告区域 -->
-        <div class="notice-section">
+        <div class="notice-section" @mouseenter="handleNoticeEnter" @mouseleave="handleNoticeLeave">
           <div class="notice-header">
             <el-icon class="notice-icon"><Bell /></el-icon>
             <span class="notice-title">系统公告</span>
           </div>
           <div class="notice-carousel">
             <el-carousel 
+              ref="carouselRef"
               direction="vertical" 
               :interval="3000" 
               height="220px"
               :show-arrow="false"
               indicator-position="none"
+              @wheel="handleWheel"
             >
               <el-carousel-item v-for="(notice, index) in noticeList" :key="index">
                 <div class="notice-item" @click="handleNoticeClick(notice)">
@@ -212,7 +214,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { 
@@ -255,6 +257,44 @@ const selectedNotice = ref(null)
 
 // 轮播图当前索引
 const activeBannerIndex = ref(0)
+
+// 轮播组件引用
+const carouselRef = ref(null)
+
+// 交互状态
+const isNoticeHovered = ref(false)
+
+// 滚轮节流函数
+let wheelThrottleTimer = null
+const WHEEL_THROTTLE_DELAY = 300
+
+// 鼠标进入公告区域
+const handleNoticeEnter = () => {
+  isNoticeHovered.value = true
+}
+
+// 鼠标离开公告区域
+const handleNoticeLeave = () => {
+  isNoticeHovered.value = false
+}
+
+// 滚轮事件处理（带节流）
+const handleWheel = (event) => {
+  if (!isNoticeHovered.value) return
+  
+  event.preventDefault()
+  
+  if (wheelThrottleTimer) return
+  
+  wheelThrottleTimer = setTimeout(() => {
+    if (event.deltaY < 0) {
+      carouselRef.value?.prev()
+    } else {
+      carouselRef.value?.next()
+    }
+    wheelThrottleTimer = null
+  }, WHEEL_THROTTLE_DELAY)
+}
 
 // 获取轮播图数据
 const getBannerList = async () => {
@@ -532,6 +572,13 @@ onMounted(() => {
   getPopularQuestions()
   getStats()
 })
+
+// 清理定时器
+onUnmounted(() => {
+  if (wheelThrottleTimer) {
+    clearTimeout(wheelThrottleTimer)
+  }
+})
 </script>
 
 <style scoped>
@@ -672,6 +719,31 @@ onMounted(() => {
   border-radius: 16px;
   box-shadow: 0 10px 40px rgba(0,0,0,0.1);
   overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.notice-section:hover {
+  box-shadow: 0 12px 48px rgba(0,0,0,0.15);
+  transform: translateY(-2px);
+}
+
+.notice-section:hover .notice-carousel {
+  cursor: pointer;
+}
+
+/* 可选：滚动指示器 */
+.notice-section:hover .notice-carousel::after {
+  content: '↑↓ 可滚动查看更多';
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  background: rgba(0, 0, 0, 0.3);
+  padding: 4px 12px;
+  border-radius: 12px;
+  pointer-events: none;
 }
 
 .notice-header {
